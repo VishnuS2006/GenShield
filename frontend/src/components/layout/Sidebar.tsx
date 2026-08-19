@@ -1,0 +1,134 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  Bot,
+  ShieldCheck,
+  ScrollText,
+  FileKey2,
+  UserCheck,
+  LogOut,
+  Shield,
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+
+interface SidebarProps {
+  collapsed?: boolean;
+}
+
+export const Sidebar: React.FC<SidebarProps> = () => {
+  const { user, logout } = useAuth();
+
+  const navItems = [
+    {
+      to: '/dashboard',
+      label: 'Dashboard',
+      icon: LayoutDashboard,
+      badge: undefined,
+    },
+    {
+      to: '/simulator',
+      label: 'AI Simulator',
+      icon: Bot,
+      badge: 'Interactive',
+    },
+    {
+      to: '/security',
+      label: 'Security Analysis',
+      icon: ShieldCheck,
+      badge: undefined,
+    },
+    {
+      to: '/audit-logs',
+      label: 'Audit Logs',
+      icon: ScrollText,
+      badge: undefined,
+    },
+    {
+      to: '/documents',
+      label: 'Protected Vault',
+      icon: FileKey2,
+      badge: 'Confidential',
+    },
+    {
+      to: '/profile',
+      label: 'Security Profile',
+      icon: UserCheck,
+      badge: undefined,
+    },
+  ];
+
+  return (
+    <aside className="w-64 bg-cyber-900 border-r border-cyber-800/80 flex flex-col h-screen fixed top-0 left-0 z-30 select-none">
+      {/* Brand Header */}
+      <div className="h-16 px-5 flex items-center gap-3 border-b border-cyber-800/80">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-shield-cyan/20 to-shield-emerald/20 border border-shield-cyan/40 flex items-center justify-center text-shield-cyan shadow-glow-cyan">
+          <Shield className="w-5 h-5" />
+        </div>
+        <div>
+          <div className="flex items-center gap-1.5">
+            <span className="font-extrabold text-base tracking-wider text-white">GEN</span>
+            <span className="font-extrabold text-base tracking-wider text-shield-cyan">SHIELD</span>
+          </div>
+          <p className="text-[10px] font-mono uppercase tracking-widest text-cyber-400">
+            DLP Prevention
+          </p>
+        </div>
+      </div>
+
+      {/* Navigation List */}
+      <div className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+        <div className="px-3 pb-2 text-[11px] font-mono font-semibold uppercase tracking-wider text-cyber-400">
+          Core Operations
+        </div>
+
+        {navItems.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            className={({ isActive }) =>
+              `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+                isActive
+                  ? 'bg-shield-cyan/10 border border-shield-cyan/30 text-shield-cyan shadow-glow-cyan/50 font-semibold'
+                  : 'text-cyber-300 hover:text-white hover:bg-cyber-800/60 border border-transparent'
+              }`
+            }
+          >
+            <div className="flex items-center gap-3">
+              <item.icon className="w-4 h-4 transition-transform group-hover:scale-110" />
+              <span>{item.label}</span>
+            </div>
+            {item.badge && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-800 text-cyber-300 border border-cyber-700">
+                {item.badge}
+              </span>
+            )}
+          </NavLink>
+        ))}
+      </div>
+
+      {/* User Info & Logout Footer */}
+      <div className="p-3.5 border-t border-cyber-800/80 bg-cyber-950/40">
+        <div className="flex items-center justify-between p-2 rounded-xl bg-cyber-850/80 border border-cyber-800">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-8 h-8 rounded-lg bg-shield-cyan/15 border border-shield-cyan/30 text-shield-cyan flex items-center justify-center font-bold font-mono text-xs flex-shrink-0">
+              {user?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+            </div>
+            <div className="min-w-0">
+              <p className="text-xs font-medium text-cyber-100 truncate">{user?.full_name || 'Admin User'}</p>
+              <p className="text-[10px] text-cyber-400 truncate">{user?.email || 'admin@genshield'}</p>
+            </div>
+          </div>
+
+          <button
+            onClick={logout}
+            title="Sign out"
+            className="p-1.5 text-cyber-400 hover:text-rose-400 hover:bg-rose-950/40 rounded-lg transition"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </aside>
+  );
+};

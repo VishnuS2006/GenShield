@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-cyber-800;
+  }
+  body {
+    @apply bg-cyber-950 text-cyber-100;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Cyber Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #090d16;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #1f293d;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Custom styling utilities */
+.cyber-card {
+  @apply bg-cyber-900/90 border border-cyber-800/80 rounded-xl shadow-card backdrop-blur-sm transition-all duration-200;
+}
+
+.cyber-card-interactive {
+  @apply bg-cyber-900/90 border border-cyber-800/80 hover:border-cyber-700/80 hover:bg-cyber-850/90 rounded-xl shadow-card backdrop-blur-sm transition-all duration-200;
+}
+
+.cyber-glass {
+  @apply bg-cyber-900/60 backdrop-blur-md border border-cyber-800/50;
+}
+
+.glow-border-emerald {
+  box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.25), inset 0 0 15px -3px rgba(16, 185, 129, 0.1);
+}
+
+.glow-border-amber {
+  box-shadow: 0 0 15px -3px rgba(245, 158, 11, 0.25), inset 0 0 15px -3px rgba(245, 158, 11, 0.1);
+}
+
+.glow-border-crimson {
+  box-shadow: 0 0 15px -3px rgba(239, 68, 68, 0.25), inset 0 0 15px -3px rgba(239, 68, 68, 0.1);
+}
+
+.glow-border-cyan {
+  box-shadow: 0 0 15px -3px rgba(6, 182, 212, 0.25), inset 0 0 15px -3px rgba(6, 182, 212, 0.1);
+}
