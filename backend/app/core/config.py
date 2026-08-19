@@ -15,7 +15,7 @@ class Settings(BaseSettings):
 
     app_name: str = "GenShield Backend"
     environment: str = "development"
-    database_url: str = "sqlite+aiosqlite:///./genshield.db"
+    database_url: str = "postgresql+psycopg://genshield:change-me@localhost:5432/genshield"
     jwt_secret_key: str = "change-this-development-secret"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 60

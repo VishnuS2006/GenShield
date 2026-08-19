@@ -42,7 +42,7 @@ export const AuditLogsPage: React.FC = () => {
         <EmptyState
           icon={ShieldCheck}
           title="No Audit Records Found"
-          description="There are no audit logs recorded matching your filter criteria. Run prompts in the AI Agent Simulator to create history entries."
+          description="There are no audit logs matching the current filters. Chat requests with elevated security signals will appear here."
         />
       ) : (
         <div className="animate-fadeIn">

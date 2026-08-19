@@ -41,7 +41,7 @@ export const RegisterPage: React.FC = () => {
 
       // Auto login after successful registration
       await login({ email: email.trim(), password });
-      navigate('/dashboard');
+      navigate('/chat');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
@@ -66,15 +66,15 @@ export const RegisterPage: React.FC = () => {
             <span className="text-shield-cyan">SHIELD</span>
           </div>
           <p className="text-xs font-mono text-cyber-400 uppercase tracking-widest mt-1">
-            Create Security Operator Account
+            Create Employee Workspace Account
           </p>
         </div>
 
         {/* Register Card */}
         <div className="cyber-card p-6 sm:p-8 bg-cyber-900/90 border-cyber-750 shadow-2xl">
-          <h2 className="text-lg font-bold text-white mb-1">Operator Registration</h2>
+          <h2 className="text-lg font-bold text-white mb-1">Create Account</h2>
           <p className="text-xs text-cyber-400 mb-6">
-            Set up your credentials for DLP monitoring & AI exfiltration prevention
+            Register to use the Aurelia Systems AI assistant protected by GenShield
           </p>
 
           {error && <ErrorMessage message={error} className="mb-5" />}
@@ -91,7 +91,7 @@ export const RegisterPage: React.FC = () => {
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Security Analyst"
+                  placeholder="Aurelia Employee"
                   disabled={isLoading}
                   className="w-full pl-10 pr-4 py-2.5 bg-cyber-950 border border-cyber-750 focus:border-shield-cyan/80 focus:ring-1 focus:ring-shield-cyan/50 rounded-xl text-xs font-mono text-cyber-100 placeholder-cyber-500 transition"
                 />
@@ -109,7 +109,7 @@ export const RegisterPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="analyst@enterprise.com"
+                  placeholder="employee@aurelia.systems"
                   disabled={isLoading}
                   className="w-full pl-10 pr-4 py-2.5 bg-cyber-950 border border-cyber-750 focus:border-shield-cyan/80 focus:ring-1 focus:ring-shield-cyan/50 rounded-xl text-xs font-mono text-cyber-100 placeholder-cyber-500 transition"
                 />

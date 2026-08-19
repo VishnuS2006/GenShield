@@ -1,8 +1,11 @@
+export type UserRole = 'EMPLOYEE' | 'SECURITY_ANALYST' | 'ADMINISTRATOR';
+
 export interface User {
   id: number;
   email: string;
   full_name: string;
   is_active: boolean;
+  role: UserRole;
   created_at: string;
   updated_at: string;
 }

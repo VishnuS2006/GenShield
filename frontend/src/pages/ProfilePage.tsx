@@ -20,7 +20,7 @@ export const ProfilePage: React.FC = () => {
     <div className="space-y-6 max-w-4xl mx-auto">
       <PageHeader
         title="Security Operator Profile"
-        subtitle="Active user identity, credentials telemetry, and DLP access posture"
+        subtitle="Active user identity, workspace permissions, and session posture"
         icon={UserCheck}
         badge="Authenticated Session"
         actions={
@@ -47,7 +47,7 @@ export const ProfilePage: React.FC = () => {
               <h2 className="text-xl font-bold text-white">{user?.full_name || 'Admin User'}</h2>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-semibold bg-emerald-950/70 border border-emerald-500/40 text-emerald-400 flex items-center gap-1">
                 <CheckCircle2 className="w-3 h-3" />
-                ACTIVE OPERATOR
+                ACTIVE USER
               </span>
             </div>
 
@@ -61,7 +61,7 @@ export const ProfilePage: React.FC = () => {
                 User ID: #{user?.id || 1}
               </span>
               <span className="px-2.5 py-1 rounded-lg bg-cyber-850 border border-cyber-800">
-                Role: Security Admin
+                Role: {user?.role?.replace('_', ' ') || 'EMPLOYEE'}
               </span>
             </div>
           </div>
@@ -95,7 +95,9 @@ export const ProfilePage: React.FC = () => {
               <span className="text-xs font-mono font-semibold uppercase">Permission Scope</span>
             </div>
             <p className="text-xs text-cyber-200">
-              Full access to Vector Vault, Simulator, and Audit Logs
+              {user?.role === 'EMPLOYEE'
+                ? 'AI chatbot access with conversation history'
+                : 'Security center access including audit logs, detection analysis, and protected vault views'}
             </p>
           </div>
 

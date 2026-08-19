@@ -1,8 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Bot,
+  MessageSquare,
   ShieldCheck,
   ScrollText,
   FileKey2,
@@ -24,13 +23,17 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose })
   if (!isOpen) return null;
 
   const navItems = [
-    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/simulator', label: 'AI Simulator', icon: Bot },
-    { to: '/security', label: 'Security Analysis', icon: ShieldCheck },
-    { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText },
-    { to: '/documents', label: 'Protected Vault', icon: FileKey2 },
-    { to: '/profile', label: 'Security Profile', icon: UserCheck },
+    { to: '/chat', label: 'AI Chat', icon: MessageSquare },
+    { to: '/profile', label: 'Profile', icon: UserCheck },
   ];
+  const securityItems =
+    user?.role === 'SECURITY_ANALYST' || user?.role === 'ADMINISTRATOR'
+      ? [
+          { to: '/security-center', label: 'Security Center', icon: ShieldCheck },
+          { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText },
+          { to: '/documents', label: 'Protected Sources', icon: FileKey2 },
+        ]
+      : [];
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
@@ -81,14 +84,39 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose })
               <span>{item.label}</span>
             </NavLink>
           ))}
+          {securityItems.length > 0 && (
+            <>
+              <div className="px-3 pb-1 pt-4 text-[11px] font-mono font-semibold uppercase tracking-wider text-cyber-400">
+                Security Operations
+              </div>
+              {securityItems.map((item) => (
+                <NavLink
+                  key={item.to}
+                  to={item.to}
+                  onClick={onClose}
+                  className={({ isActive }) =>
+                    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
+                      isActive
+                        ? 'bg-shield-cyan/15 border border-shield-cyan/30 text-shield-cyan font-semibold'
+                        : 'text-cyber-300 hover:text-white hover:bg-cyber-800/60'
+                    }`
+                  }
+                >
+                  <item.icon className="w-4 h-4" />
+                  <span>{item.label}</span>
+                </NavLink>
+              ))}
+            </>
+          )}
         </div>
 
         {/* Footer */}
         <div className="p-4 border-t border-cyber-800 bg-cyber-950/40">
           <div className="flex items-center justify-between p-2.5 rounded-xl bg-cyber-850 border border-cyber-800">
             <div className="min-w-0 pr-2">
-              <p className="text-xs font-medium text-white truncate">{user?.full_name || 'Admin User'}</p>
-              <p className="text-[11px] text-cyber-400 truncate">{user?.email || 'admin@genshield'}</p>
+              <p className="text-xs font-medium text-white truncate">{user?.full_name || 'Enterprise User'}</p>
+              <p className="text-[11px] text-cyber-400 truncate">{user?.email || 'user@company.internal'}</p>
+              <p className="text-[11px] text-cyber-500 font-mono truncate">{user?.role?.replace('_', ' ') || 'EMPLOYEE'}</p>
             </div>
             <button
               onClick={() => {

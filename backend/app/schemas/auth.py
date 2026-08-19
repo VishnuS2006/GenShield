@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
+from app.models.enums import UserRole
+
 
 class UserRegister(BaseModel):
     email: EmailStr
@@ -21,6 +23,7 @@ class UserRead(BaseModel):
     email: EmailStr
     full_name: str
     is_active: bool
+    role: UserRole
     created_at: datetime
     updated_at: datetime
 

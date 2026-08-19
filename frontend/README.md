@@ -39,11 +39,11 @@ frontend/
 │   │   ├── documents/        # DocumentTable, DocumentDetailsModal, DocumentFormModal, FactList
 │   │   ├── layout/           # AppLayout, Sidebar, Header, MobileSidebar
 │   │   ├── security/         # DetectionBreakdown, SimilarityScore, FactOverlap, LineageCard, DetectionPlayground
-│   │   └── simulator/        # ScenarioSelector, ScenarioCard, PromptInput, GeneratedResultCard
+│   │   └── simulator/        # Reusable prompt and response UI components now repurposed by the chatbot flow
 │   ├── context/
 │   │   └── AuthContext.tsx   # Session management & JWT persistence
 │   ├── hooks/                # useAuth, useDashboard, useGenerate, useDetection, useHistory, useDocuments
-│   ├── pages/                # LoginPage, RegisterPage, DashboardPage, SimulatorPage, etc.
+│   ├── pages/                # LoginPage, RegisterPage, ChatbotPage, DashboardPage, etc.
 │   ├── routes/               # ProtectedRoute, PublicRoute
 │   ├── services/             # api.ts, authApi.ts, dashboardApi.ts, generateApi.ts, detectApi.ts, historyApi.ts, documentsApi.ts
 │   ├── types/                # auth.ts, api.ts, dashboard.ts, detection.ts, history.ts, documents.ts

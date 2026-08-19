@@ -2,10 +2,15 @@ from functools import lru_cache
 
 import numpy as np
 
+from app.core.config import get_settings
+from app.utils.helpers import meaningful_tokens
+
 try:
     from sentence_transformers import SentenceTransformer
 except Exception:  # pragma: no cover
     SentenceTransformer = None
+
+settings = get_settings()
 
 
 class EmbeddingService:
@@ -15,7 +20,7 @@ class EmbeddingService:
 
     def _load_model(self):
         if self._model is None and SentenceTransformer is not None:
-            self._model = SentenceTransformer("all-MiniLM-L6-v2")
+            self._model = SentenceTransformer(settings.embedding_model)
         return self._model
 
     def _fallback_embed(self, text: str) -> np.ndarray:
@@ -47,7 +52,13 @@ class EmbeddingService:
         right_vec = self.embed_text(right)
         if not left_vec.any() or not right_vec.any():
             return 0.0
-        score = float(np.dot(left_vec, right_vec))
+        semantic_score = float(np.dot(left_vec, right_vec))
+        left_tokens = meaningful_tokens(left)
+        right_tokens = meaningful_tokens(right)
+        lexical_score = 0.0
+        if left_tokens and right_tokens:
+            lexical_score = len(left_tokens & right_tokens) / len(left_tokens | right_tokens)
+        score = (semantic_score * 0.7) + (lexical_score * 0.3)
         return max(0.0, min(1.0, score))
 
     def cache_document_embedding(self, document_id: int, text: str) -> np.ndarray:

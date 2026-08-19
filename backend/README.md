@@ -9,7 +9,7 @@ cd backend
 python -m venv .venv
 . .venv/Scripts/activate
 pip install -r requirements-dev.txt
-uvicorn app.main:app --reload
+python run.py
 pytest
 ```
 

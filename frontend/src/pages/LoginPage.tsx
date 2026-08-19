@@ -22,7 +22,7 @@ export const LoginPage: React.FC = () => {
       setIsLoading(true);
       setError(null);
       await login({ email, password });
-      navigate('/dashboard');
+      navigate('/chat');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Invalid credentials');
     } finally {
@@ -52,15 +52,15 @@ export const LoginPage: React.FC = () => {
             <span className="text-shield-cyan">SHIELD</span>
           </div>
           <p className="text-xs font-mono text-cyber-400 uppercase tracking-widest mt-1">
-            Enterprise AI Exfiltration Defense
+            Enterprise AI Knowledge Assistant
           </p>
         </div>
 
         {/* Login Card */}
         <div className="cyber-card p-6 sm:p-8 bg-cyber-900/90 border-cyber-750 shadow-2xl">
-          <h2 className="text-lg font-bold text-white mb-1">Security Console Access</h2>
+          <h2 className="text-lg font-bold text-white mb-1">Sign In</h2>
           <p className="text-xs text-cyber-400 mb-6">
-            Enter your credentials to access the runtime DLP monitor
+            Access the Aurelia Systems AI workspace protected by GenShield
           </p>
 
           {error && <ErrorMessage message={error} className="mb-5" />}
@@ -77,7 +77,7 @@ export const LoginPage: React.FC = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="analyst@enterprise.com"
+                  placeholder="employee@aurelia.systems"
                   disabled={isLoading}
                   className="w-full pl-10 pr-4 py-2.5 bg-cyber-950 border border-cyber-750 focus:border-shield-cyan/80 focus:ring-1 focus:ring-shield-cyan/50 rounded-xl text-xs font-mono text-cyber-100 placeholder-cyber-500 transition"
                 />
@@ -123,7 +123,7 @@ export const LoginPage: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <span>Sign In to GenShield</span>
+                  <span>Open AI Workspace</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}

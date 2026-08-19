@@ -14,7 +14,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-cyber-950 flex flex-col items-center justify-center">
-        <LoadingSpinner size="lg" label="Restoring Secure Session..." />
+        <LoadingSpinner size="lg" label="Restoring secure workspace..." />
       </div>
     );
   }

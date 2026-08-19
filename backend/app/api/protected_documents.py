@@ -4,7 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_roles
+from app.models.enums import UserRole
 from app.models.protected_document import ProtectedDocument
 from app.models.protected_fact import ProtectedFact
 from app.models.user import User
@@ -20,7 +21,8 @@ router = APIRouter(prefix="/api/protected-documents", tags=["protected-documents
 
 @router.get("", response_model=list[ProtectedDocumentRead])
 async def list_documents(
-    _: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+    _: User = Depends(require_roles(UserRole.SECURITY_ANALYST, UserRole.ADMINISTRATOR)),
+    db: AsyncSession = Depends(get_db)
 ) -> list[ProtectedDocument]:
     result = await db.scalars(select(ProtectedDocument).options(selectinload(ProtectedDocument.facts)))
     return list(result)
@@ -28,7 +30,9 @@ async def list_documents(
 
 @router.get("/{document_id}", response_model=ProtectedDocumentRead)
 async def get_document(
-    document_id: int, _: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+    document_id: int,
+    _: User = Depends(require_roles(UserRole.SECURITY_ANALYST, UserRole.ADMINISTRATOR)),
+    db: AsyncSession = Depends(get_db)
 ) -> ProtectedDocument:
     document = await db.scalar(
         select(ProtectedDocument).options(selectinload(ProtectedDocument.facts)).where(ProtectedDocument.id == document_id)
@@ -41,7 +45,7 @@ async def get_document(
 @router.post("", response_model=ProtectedDocumentRead, status_code=status.HTTP_201_CREATED)
 async def create_document(
     payload: ProtectedDocumentCreate,
-    _: User = Depends(get_current_user),
+    _: User = Depends(require_roles(UserRole.SECURITY_ANALYST, UserRole.ADMINISTRATOR)),
     db: AsyncSession = Depends(get_db),
 ) -> ProtectedDocument:
     document = ProtectedDocument(
@@ -63,7 +67,7 @@ async def create_document(
 async def update_document(
     document_id: int,
     payload: ProtectedDocumentUpdate,
-    _: User = Depends(get_current_user),
+    _: User = Depends(require_roles(UserRole.SECURITY_ANALYST, UserRole.ADMINISTRATOR)),
     db: AsyncSession = Depends(get_db),
 ) -> ProtectedDocument:
     document = await db.scalar(
@@ -82,7 +86,9 @@ async def update_document(
 
 @router.delete("/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_document(
-    document_id: int, _: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)
+    document_id: int,
+    _: User = Depends(require_roles(UserRole.SECURITY_ANALYST, UserRole.ADMINISTRATOR)),
+    db: AsyncSession = Depends(get_db)
 ) -> None:
     document = await db.get(ProtectedDocument, document_id)
     if not document:

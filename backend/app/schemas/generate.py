@@ -4,7 +4,7 @@ from app.schemas.detection import SecurityAnalysis
 
 
 class GenerateRequest(BaseModel):
-    prompt: str = Field(min_length=1)
+    prompt: str = Field(min_length=1, max_length=4000)
     scenario: str | None = None
 
 

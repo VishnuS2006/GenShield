@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import require_roles
 from app.models.detection_result import DetectionResult
-from app.models.enums import Decision
+from app.models.enums import Decision, UserRole
 from app.models.protected_document import ProtectedDocument
 from app.models.user import User
 from app.schemas.detection import DetectRequest, DetectResponse, SecurityAnalysis
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/api/detect", tags=["detect"])
 @router.post("", response_model=DetectResponse)
 async def detect(
     payload: DetectRequest,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_roles(UserRole.SECURITY_ANALYST, UserRole.ADMINISTRATOR)),
     db: AsyncSession = Depends(get_db),
 ) -> DetectResponse:
     query = select(ProtectedDocument).options(selectinload(ProtectedDocument.facts))

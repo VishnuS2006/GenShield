@@ -21,11 +21,11 @@ export const NotFoundPage: React.FC = () => {
 
       <div className="flex items-center gap-3">
         <Link
-          to="/dashboard"
+          to="/chat"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold bg-shield-cyan hover:bg-shield-cyanDark text-cyber-950 shadow-glow-cyan transition"
         >
           <Home className="w-4 h-4" />
-          <span>Return to Dashboard</span>
+          <span>Return to Chatbot</span>
         </Link>
         <button
           onClick={() => window.history.back()}

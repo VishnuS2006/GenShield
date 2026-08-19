@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Shield, ArrowUpRight, Clock } from 'lucide-react';
+import { Shield, ArrowUpRight, Clock, FileKey2 } from 'lucide-react';
 import { RecentDetection } from '../../types/dashboard';
 import { DecisionBadge } from '../common/DecisionBadge';
 import { formatDate, formatRequestId } from '../../utils/formatters';
@@ -18,8 +18,8 @@ export const RecentDetections: React.FC<RecentDetectionsProps> = ({ detections }
             <Shield className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-base font-semibold text-white">Recent Detections</h3>
-            <p className="text-xs text-cyber-400">Live security scanning feed</p>
+            <h3 className="text-base font-semibold text-white">Recent Security Detections</h3>
+            <p className="text-xs text-cyber-400">Live semantic exfiltration surveillance feed</p>
           </div>
         </div>
 
@@ -34,17 +34,19 @@ export const RecentDetections: React.FC<RecentDetectionsProps> = ({ detections }
 
       {detections.length === 0 ? (
         <div className="py-8 text-center text-cyber-500 font-mono text-xs">
-          No detections recorded yet. Run a prompt in the AI Simulator to start monitoring.
+          No detections recorded yet. Security-screened chatbot interactions will appear here automatically.
         </div>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-cyber-800 text-cyber-400 font-mono uppercase tracking-wider">
-                <th className="pb-3 px-2 font-medium">Request ID</th>
-                <th className="pb-3 px-2 font-medium">Decision</th>
-                <th className="pb-3 px-2 font-medium">Risk Score</th>
-                <th className="pb-3 px-2 font-medium">Timestamp</th>
+                <th className="pb-3 px-3 font-medium">Request ID</th>
+                <th className="pb-3 px-3 font-medium">Decision</th>
+                <th className="pb-3 px-3 font-medium">Risk Score</th>
+                <th className="pb-3 px-3 font-medium">Similarity / Overlap</th>
+                <th className="pb-3 px-3 font-medium">Lineage Tag</th>
+                <th className="pb-3 px-3 font-medium">Timestamp</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-cyber-800/50">
@@ -53,15 +55,15 @@ export const RecentDetections: React.FC<RecentDetectionsProps> = ({ detections }
                   key={detection.request_id}
                   className="hover:bg-cyber-850/50 transition-colors group"
                 >
-                  <td className="py-3 px-2 font-mono font-medium text-cyber-200">
+                  <td className="py-3 px-3 font-mono font-medium text-cyber-200">
                     <span title={detection.request_id}>
                       {formatRequestId(detection.request_id)}
                     </span>
                   </td>
-                  <td className="py-3 px-2">
+                  <td className="py-3 px-3">
                     <DecisionBadge decision={detection.decision} size="sm" />
                   </td>
-                  <td className="py-3 px-2 font-mono">
+                  <td className="py-3 px-3 font-mono">
                     <span
                       className={`font-semibold ${
                         detection.risk_score >= 90
@@ -74,9 +76,33 @@ export const RecentDetections: React.FC<RecentDetectionsProps> = ({ detections }
                       {detection.risk_score} / 100
                     </span>
                   </td>
-                  <td className="py-3 px-2 text-cyber-400 font-mono flex items-center gap-1.5 mt-1">
-                    <Clock className="w-3 h-3 text-cyber-500" />
-                    <span>{formatDate(detection.created_at)}</span>
+                  <td className="py-3 px-3 text-cyber-300 font-mono">
+                    {typeof detection.similarity_score === 'number' ? (
+                      <span>
+                        Sim {(detection.similarity_score * 100).toFixed(0)}%
+                        {typeof detection.facts_matched === 'number' && detection.facts_matched > 0
+                          ? ` • ${detection.facts_matched} facts`
+                          : ''}
+                      </span>
+                    ) : (
+                      <span className="text-cyber-500">-</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-3 font-mono text-xs">
+                    {detection.lineage_tag ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-cyber-800 border border-cyber-700 text-shield-indigo">
+                        <FileKey2 className="w-3 h-3" />
+                        {detection.lineage_tag}
+                      </span>
+                    ) : (
+                      <span className="text-cyber-500">-</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-3 text-cyber-400 font-mono">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3 h-3 text-cyber-500" />
+                      <span>{formatDate(detection.created_at)}</span>
+                    </div>
                   </td>
                 </tr>
               ))}

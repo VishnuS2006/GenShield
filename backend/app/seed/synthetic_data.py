@@ -1,9 +1,11 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.company_knowledge import CompanyKnowledgeRecord
 from app.models.enums import SensitivityLevel
 from app.models.protected_document import ProtectedDocument
 from app.models.protected_fact import ProtectedFact
+from app.seed.company_knowledge import seed_company_knowledge
 
 SEED_DOCUMENTS = [
     {
@@ -59,19 +61,22 @@ SEED_DOCUMENTS = [
 
 async def seed_synthetic_data(db: AsyncSession) -> None:
     existing = await db.scalar(select(ProtectedDocument.id).limit(1))
-    if existing:
-        return
-    for item in SEED_DOCUMENTS:
-        document = ProtectedDocument(
-            title=item["title"],
-            department=item["department"],
-            content=item["content"],
-            sensitivity=item["sensitivity"],
-            lineage_tag=item["lineage_tag"],
-        )
-        document.facts = [
-            ProtectedFact(fact_type=fact_type, fact_value=fact_value, importance=importance)
-            for fact_type, fact_value, importance in item["facts"]
-        ]
-        db.add(document)
-    await db.commit()
+    if not existing:
+        for item in SEED_DOCUMENTS:
+            document = ProtectedDocument(
+                title=item["title"],
+                department=item["department"],
+                content=item["content"],
+                sensitivity=item["sensitivity"],
+                lineage_tag=item["lineage_tag"],
+            )
+            document.facts = [
+                ProtectedFact(fact_type=fact_type, fact_value=fact_value, importance=importance)
+                for fact_type, fact_value, importance in item["facts"]
+            ]
+            db.add(document)
+        await db.commit()
+
+    company_existing = await db.scalar(select(CompanyKnowledgeRecord.id).limit(1))
+    if not company_existing:
+        await seed_company_knowledge(db)

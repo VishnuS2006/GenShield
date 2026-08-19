@@ -1,15 +1,22 @@
 import logging
 import time
+from contextlib import asynccontextmanager
+import asyncio
+
+if hasattr(asyncio, "WindowsSelectorEventLoopPolicy"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
+from sqlalchemy.exc import OperationalError, ProgrammingError
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.auth import router as auth_router
+from app.api.chat import router as chat_router
 from app.api.dashboard import router as dashboard_router
 from app.api.detect import router as detect_router
 from app.api.generate import router as generate_router
@@ -20,10 +27,41 @@ from app.core.database import AsyncSessionLocal, Base, engine
 from app.seed.synthetic_data import seed_synthetic_data
 
 settings = get_settings()
-logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s request_id=%(request_id)s %(message)s")
 logger = logging.getLogger("genshield")
 
-app = FastAPI(title="GenShield Backend", version="1.0.0")
+class RequestIdFilter(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        if not hasattr(record, "request_id"):
+            record.request_id = "-"
+        return True
+
+
+logger.addFilter(RequestIdFilter())
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    async with AsyncSessionLocal() as session:
+        try:
+            await seed_synthetic_data(session)
+        except OperationalError as exc:
+            logger.exception("database_connection_failed")
+            raise RuntimeError(
+                "Database connection failed. Check DATABASE_URL in backend/.env, "
+                "make sure the PostgreSQL user/password are correct, and ensure the database exists."
+            ) from exc
+        except ProgrammingError:
+            logger.exception("database_schema_missing")
+            raise RuntimeError("Database schema is missing. Run Alembic migrations before starting the application.")
+        except Exception:
+            await session.rollback()
+            raise
+    yield
+    await engine.dispose()
+
+
+app = FastAPI(title="GenShield Backend", version="1.0.0", lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -36,9 +74,17 @@ app.add_middleware(
 @app.middleware("http")
 async def request_context(request: Request, call_next):
     started = time.perf_counter()
+    request_id = request.headers.get("X-Request-ID", "-")
     response = await call_next(request)
     duration_ms = round((time.perf_counter() - started) * 1000, 2)
-    logger.info("request_complete path=%s status=%s duration_ms=%s", request.url.path, response.status_code, duration_ms)
+    response.headers["X-Request-ID"] = request_id
+    logger.info(
+        "request_complete path=%s status=%s duration_ms=%s",
+        request.url.path,
+        response.status_code,
+        duration_ms,
+        extra={"request_id": request_id},
+    )
     return response
 
 
@@ -65,18 +111,6 @@ async def generic_exception_handler(_: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"error": {"code": "INTERNAL_SERVER_ERROR", "message": str(exc) if settings.environment == "development" else "Internal server error"}})
 
 
-@app.on_event("startup")
-async def startup() -> None:
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-    async with AsyncSessionLocal() as session:
-        try:
-            await seed_synthetic_data(session)
-        except Exception:
-            await session.rollback()
-            raise
-
-
 @app.get("/health")
 async def health():
     async with AsyncSessionLocal() as session:
@@ -85,6 +119,7 @@ async def health():
 
 
 app.include_router(auth_router)
+app.include_router(chat_router)
 app.include_router(generate_router)
 app.include_router(detect_router)
 app.include_router(dashboard_router)

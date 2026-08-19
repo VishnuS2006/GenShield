@@ -20,7 +20,7 @@ class SecurityAnalysis(BaseModel):
 
 
 class DetectRequest(BaseModel):
-    generated_response: str = Field(min_length=1)
+    generated_response: str = Field(min_length=1, max_length=8000)
     document_ids: list[int] = Field(default_factory=list)
 
 
