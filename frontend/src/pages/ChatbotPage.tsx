@@ -185,8 +185,9 @@ export const ChatbotPage: React.FC = () => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    latestUserMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [activeConversation?.messages, isSending]);
+    if (!isSending) return;
+    latestUserMessageRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [isSending]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -444,7 +445,7 @@ export const ChatbotPage: React.FC = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="chat-markdown text-[15px] leading-8 font-normal text-cyber-100">
+                        <div className="chat-markdown break-words text-[15px] leading-8 font-normal text-cyber-100">
                           {!isUser && message.decision && (
                             <div className={`mb-4 rounded-2xl border px-4 py-3 ${riskTone.container}`}>
                               <div className="flex items-start gap-3">
