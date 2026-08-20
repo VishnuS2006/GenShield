@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: genshield-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: sh -c "python -m alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"
+    healthCheckPath: /health
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+      - key: LLM_PROVIDER
+        value: openai
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: EMBEDDING_MODEL
+        value: all-MiniLM-L6-v2
+      - key: SIMILARITY_WARN_THRESHOLD
+        value: "0.45"
+      - key: SIMILARITY_BLOCK_THRESHOLD
+        value: "0.78"
+      - key: RISK_WARN_THRESHOLD
+        value: "45"
+      - key: RISK_BLOCK_THRESHOLD
+        value: "85"
+      - key: CORS_ORIGINS
+        sync: false
+      - key: LOG_GENERATED_RESPONSE
+        value: "false"
+      - key: ENVIRONMENT
+        value: production
