@@ -64,6 +64,7 @@ async def detect(
             factual_overlap_score=outcome.factual_overlap_score,
             sensitivity=outcome.sensitivity,
             risk_score=outcome.risk_score,
+            risk_level=outcome.risk_level,
             decision=Decision(outcome.decision),
             matched_source=outcome.matched_document.title if outcome.matched_document else None,
             lineage_tag=outcome.matched_document.lineage_tag if outcome.matched_document else None,

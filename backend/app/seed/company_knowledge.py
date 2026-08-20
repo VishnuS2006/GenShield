@@ -44,6 +44,93 @@ PROJECTS = [
 ]
 METRICS = ["pipeline growth", "renewal rate", "gross margin", "deployment velocity", "support resolution time"]
 
+FOUNDATIONAL_RECORDS = [
+    {
+        "reference_id": "AK-FOUND-001",
+        "record_type": "company_overview",
+        "title": f"{COMPANY_NAME} company overview",
+        "content": (
+            f"{COMPANY_NAME} is an enterprise software and services company focused on analytics, cloud operations, "
+            "AI-enabled workflow automation, cybersecurity resilience, customer success operations, and platform engineering. "
+            "The company serves regulated and operations-heavy industries that need secure, high-availability digital platforms."
+        ),
+        "business_unit": "Corporate Strategy",
+        "region": "Global",
+        "searchable_text": (
+            f"{COMPANY_NAME} company overview business areas main business areas enterprise software analytics cloud operations "
+            "workflow automation cybersecurity customer success platform engineering regulated industries"
+        ),
+        "record_metadata": {
+            "company": COMPANY_NAME,
+            "topic": "overview",
+            "priority": "foundational",
+        },
+    },
+    {
+        "reference_id": "AK-FOUND-002",
+        "record_type": "business_areas",
+        "title": "Primary business areas and operating model",
+        "content": (
+            "The company operates across six primary business areas: Enterprise Analytics, Cloud Operations, Cyber Defense, "
+            "Revenue Operations, Customer Success, and Platform Engineering. These areas work together to deliver software products, "
+            "managed services, deployment programs, operational intelligence, and secure AI adoption support."
+        ),
+        "business_unit": "Corporate Strategy",
+        "region": "Global",
+        "searchable_text": (
+            "primary business areas operating model main business areas enterprise analytics cloud operations cyber defense "
+            "revenue operations customer success platform engineering software products managed services secure AI adoption"
+        ),
+        "record_metadata": {
+            "company": COMPANY_NAME,
+            "topic": "business_areas",
+            "priority": "foundational",
+        },
+    },
+    {
+        "reference_id": "AK-FOUND-003",
+        "record_type": "product_portfolio",
+        "title": "Core product portfolio summary",
+        "content": (
+            "The company product portfolio is anchored by Orion Analytics, Atlas Cloud, SentinelOps, Nimbus Flow, Helix Assist, "
+            "and Aegis Monitor. Together these offerings support data analysis, cloud management, secure operations, workflow "
+            "automation, AI assistance, and continuous monitoring."
+        ),
+        "business_unit": "Product Management",
+        "region": "Global",
+        "searchable_text": (
+            "core product portfolio products Orion Analytics Atlas Cloud SentinelOps Nimbus Flow Helix Assist Aegis Monitor "
+            "data analysis cloud management secure operations workflow automation AI assistance continuous monitoring"
+        ),
+        "record_metadata": {
+            "company": COMPANY_NAME,
+            "topic": "products",
+            "priority": "foundational",
+        },
+    },
+    {
+        "reference_id": "AK-FOUND-004",
+        "record_type": "markets",
+        "title": "Markets, customers, and delivery focus",
+        "content": (
+            "The company primarily serves enterprise customers in logistics, healthcare, retail, energy, financial services, "
+            "and industrial operations. Its delivery model combines platform subscriptions, managed services, implementation "
+            "programs, and long-term customer success support."
+        ),
+        "business_unit": "Go To Market",
+        "region": "Global",
+        "searchable_text": (
+            "markets customers delivery focus enterprise customers logistics healthcare retail energy financial services "
+            "industrial operations platform subscriptions managed services implementation customer success support"
+        ),
+        "record_metadata": {
+            "company": COMPANY_NAME,
+            "topic": "markets",
+            "priority": "foundational",
+        },
+    },
+]
+
 
 def _build_record(index: int, rng: random.Random) -> dict:
     unit = BUSINESS_UNITS[index % len(BUSINESS_UNITS)]
@@ -91,9 +178,34 @@ def generate_company_knowledge_records(total_records: int, seed: int = 20260819)
     return [_build_record(index, rng) for index in range(1, total_records + 1)]
 
 
+async def _ensure_foundational_records(db: AsyncSession) -> None:
+    existing_ids = set(
+        await db.scalars(
+            select(CompanyKnowledgeRecord.reference_id).where(
+                CompanyKnowledgeRecord.reference_id.in_([record["reference_id"] for record in FOUNDATIONAL_RECORDS])
+            )
+        )
+    )
+    missing = [record for record in FOUNDATIONAL_RECORDS if record["reference_id"] not in existing_ids]
+    if missing:
+        now = datetime.now(UTC)
+        db.add_all(
+            [
+                CompanyKnowledgeRecord(
+                    **record,
+                    created_at=now,
+                    updated_at=now,
+                )
+                for record in missing
+            ]
+        )
+        await db.commit()
+
+
 async def seed_company_knowledge(db: AsyncSession, total_records: int = 600) -> None:
+    await _ensure_foundational_records(db)
     existing = await db.scalar(select(CompanyKnowledgeRecord.id).limit(1))
-    if existing:
+    if existing and await db.scalar(select(CompanyKnowledgeRecord.id).offset(len(FOUNDATIONAL_RECORDS)).limit(1)):
         return
     records = generate_company_knowledge_records(total_records)
     db.add_all([CompanyKnowledgeRecord(**record) for record in records])

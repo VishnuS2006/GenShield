@@ -32,3 +32,25 @@ class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserRead
+
+
+class UserProfileSummary(BaseModel):
+    user: UserRead
+    request_count: int
+    detection_count: int
+    last_activity_at: datetime | None = None
+
+
+class DetectionSettingsRead(BaseModel):
+    similarity_warn_threshold: float
+    similarity_block_threshold: float
+    risk_warn_threshold: int
+    risk_block_threshold: int
+    factual_overlap_mode: str
+    embedding_model: str
+
+
+class SettingsRead(BaseModel):
+    account: UserRead
+    security: dict[str, str]
+    detection: DetectionSettingsRead

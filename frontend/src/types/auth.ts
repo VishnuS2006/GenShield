@@ -27,6 +27,28 @@ export interface TokenResponse {
   user: User;
 }
 
+export interface UserProfileSummary {
+  user: User;
+  request_count: number;
+  detection_count: number;
+  last_activity_at?: string | null;
+}
+
+export interface DetectionSettings {
+  similarity_warn_threshold: number;
+  similarity_block_threshold: number;
+  risk_warn_threshold: number;
+  risk_block_threshold: number;
+  factual_overlap_mode: string;
+  embedding_model: string;
+}
+
+export interface SettingsResponse {
+  account: User;
+  security: Record<string, string>;
+  detection: DetectionSettings;
+}
+
 export interface AuthState {
   user: User | null;
   token: string | null;

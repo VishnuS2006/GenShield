@@ -13,6 +13,7 @@ class SecurityAnalysis(BaseModel):
     factual_overlap_score: float
     sensitivity: Optional[SensitivityLevel] = None
     risk_score: int
+    risk_level: str
     decision: Decision
     matched_source: Optional[str] = None
     lineage_tag: Optional[str] = None
@@ -40,6 +41,7 @@ class DetectionResultRead(BaseModel):
     facts_total: int
     sensitivity_score: int
     risk_score: int
+    risk_level: str
     decision: Decision
     matched_document_id: Optional[int] = None
     matched_facts: list[str]

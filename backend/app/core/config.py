@@ -23,10 +23,10 @@ class Settings(BaseSettings):
     openai_api_key: str = ""
     openai_model: str = "gpt-4o-mini"
     embedding_model: str = "all-MiniLM-L6-v2"
-    similarity_warn_threshold: float = 0.60
-    similarity_block_threshold: float = 0.85
-    risk_warn_threshold: int = 60
-    risk_block_threshold: int = 90
+    similarity_warn_threshold: float = 0.45
+    similarity_block_threshold: float = 0.78
+    risk_warn_threshold: int = 45
+    risk_block_threshold: int = 85
     cors_origins_raw: str = Field(default="http://localhost:5173", alias="CORS_ORIGINS")
     log_generated_response: bool = False
 

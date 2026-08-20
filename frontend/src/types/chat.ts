@@ -17,6 +17,7 @@ export interface ChatMessage {
   request_id?: string | null;
   decision?: Decision | null;
   risk_score?: number | null;
+  risk_level?: 'LOW' | 'MEDIUM' | 'HIGH' | null;
   similarity_score?: number | null;
   matched_source?: string | null;
   lineage_tag?: string | null;
@@ -35,8 +36,16 @@ export interface CreateConversationPayload {
   title?: string;
 }
 
+export interface UpdateConversationPayload {
+  title: string;
+}
+
 export interface SendChatMessagePayload {
   prompt: string;
+}
+
+export interface EditChatMessagePayload {
+  content: string;
 }
 
 export interface ChatExchangeResponse {

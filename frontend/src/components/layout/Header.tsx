@@ -41,7 +41,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenMobileMenu }) => {
         <div className="flex items-center gap-2">
           <ShieldCheck className="w-4 h-4 text-shield-cyan" />
           <span className="text-xs sm:text-sm font-medium text-cyber-200">
-            GenShield Enterprise AI Assistant
+            GenShield Enterprise AI Security Platform
           </span>
         </div>
       </div>

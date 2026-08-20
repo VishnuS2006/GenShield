@@ -21,6 +21,32 @@ from app.utils.helpers import new_request_id
 router = APIRouter(prefix="/api/generate", tags=["generate"])
 
 
+def _render_protected_context(retrieved) -> str:
+    return "\n\n".join(
+        f"[{match.document.lineage_tag}] {match.document.title}\n"
+        f"Business Unit: {match.document.department}\n"
+        f"Region: Protected\n"
+        f"{match.document.content}\n"
+        f"Relevant Facts: {', '.join(f.fact_value for f in match.relevant_facts[:4]) or 'None'}"
+        for match in retrieved
+    )
+
+
+def _build_high_risk_message(outcome, prompt: str) -> str:
+    matched_source = outcome.matched_document.title if outcome.matched_document else "a protected internal source"
+    return (
+        "## High Risk Response Withheld\n"
+        f"GenShield blocked the response for the prompt: \"{prompt}\".\n\n"
+        f"- Decision: {outcome.decision}\n"
+        f"- Risk score: {outcome.risk_score} / 100\n"
+        f"- Risk level: {outcome.risk_level}\n"
+        f"- Matched source: {matched_source}\n"
+        f"- Semantic similarity: {round(outcome.similarity_score * 100)}%\n"
+        f"- Factual overlap: {round(outcome.factual_overlap_score * 100)}%\n\n"
+        "The generated answer overlapped too closely with protected company information, so the content was withheld. Ask for a higher-level, non-confidential summary instead."
+    )
+
+
 @router.post("", response_model=GenerateResponse)
 async def generate(
     payload: GenerateRequest,
@@ -31,13 +57,13 @@ async def generate(
         await db.scalars(select(ProtectedDocument).options(selectinload(ProtectedDocument.facts)))
     )
     retrieved = RetrievalService().retrieve(payload.prompt, documents)
-    context = "\n".join(
-        f"- {match.document.title}: {match.document.content}" for match in retrieved
-    )
+    context = _render_protected_context(retrieved)
     generated_response = await get_llm_provider().generate_response(payload.prompt, context)
     request_id = new_request_id()
     relevant_docs = [match.document for match in retrieved] or documents
-    outcome = DetectionService().analyze(generated_response, relevant_docs)
+    outcome = DetectionService().analyze(generated_response, relevant_docs, prompt=payload.prompt)
+    if outcome.decision == Decision.BLOCK.value:
+        generated_response = _build_high_risk_message(outcome, payload.prompt)
     detection = DetectionResult(
         request_id=request_id,
         similarity_score=outcome.similarity_score,
@@ -74,6 +100,7 @@ async def generate(
             factual_overlap_score=outcome.factual_overlap_score,
             sensitivity=outcome.sensitivity,
             risk_score=outcome.risk_score,
+            risk_level=outcome.risk_level,
             decision=Decision(outcome.decision),
             matched_source=outcome.matched_document.title if outcome.matched_document else None,
             lineage_tag=outcome.matched_document.lineage_tag if outcome.matched_document else None,

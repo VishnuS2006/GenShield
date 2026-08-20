@@ -9,6 +9,7 @@ export interface SecurityAnalysis {
   factual_overlap_score: number;
   sensitivity?: SensitivityLevel | null;
   risk_score: number;
+  risk_level: 'LOW' | 'MEDIUM' | 'HIGH';
   decision: Decision;
   matched_source?: string | null;
   lineage_tag?: string | null;

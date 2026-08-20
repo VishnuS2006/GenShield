@@ -77,6 +77,4 @@ async def seed_synthetic_data(db: AsyncSession) -> None:
             db.add(document)
         await db.commit()
 
-    company_existing = await db.scalar(select(CompanyKnowledgeRecord.id).limit(1))
-    if not company_existing:
-        await seed_company_knowledge(db)
+    await seed_company_knowledge(db)

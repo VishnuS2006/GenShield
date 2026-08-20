@@ -1,281 +1,179 @@
-This file is the practical run guide for the entire project.
+# GenShield Verification Checklist
 
-## Option 1: Run Locally Without Docker
+## Application
 
-Use this option if you want the fastest developer setup.
+- [x] Dashboard
+- [x] ChatGPT-style chatbot
+- [x] New Chat
+- [x] Conversation history
+- [x] Conversation search
+- [x] Rename conversation
+- [x] Delete conversation
+- [x] Multi-turn conversation
+- [x] Retry
+- [x] Regenerate
+- [x] Copy response
+- [x] Security Analysis
+- [x] Profile
+- [x] Settings
 
-### Prerequisites
+## RAG
 
-- Python 3.12+ installed
-- Node.js 20+ installed
-- npm installed
+- [x] Protected company knowledge
+- [x] RAG retrieval
+- [x] Conversation context
+- [x] Separate conversation memory from protected documents
+- [x] Embeddings
+- [x] Relevant source retrieval
 
-### Step 1: Configure backend environment
+## Security
 
-Open `backend/.env` and make sure it contains working local values. A simple local setup is:
+- [x] Semantic similarity
+- [x] Factual overlap
+- [x] Sensitivity
+- [x] Risk engine
+- [x] ALLOW
+- [x] WARN
+- [x] BLOCK
+- [x] Data lineage
+- [x] Audit logs
 
-```env
-DATABASE_URL=postgresql+psycopg://genshield:change-me@127.0.0.1:5432/genshield
-JWT_SECRET_KEY=change-this-development-secret
-JWT_ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-LLM_PROVIDER=mock
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
-EMBEDDING_MODEL=all-MiniLM-L6-v2
-SIMILARITY_WARN_THRESHOLD=0.60
-SIMILARITY_BLOCK_THRESHOLD=0.85
-RISK_WARN_THRESHOLD=60
-RISK_BLOCK_THRESHOLD=90
-ENVIRONMENT=development
-CORS_ORIGINS=http://localhost:5173
-```
+## PostgreSQL
 
-### Step 2: Configure frontend environment
+- [x] Users
+- [x] Conversations
+- [x] Messages
+- [x] Protected documents
+- [x] Protected facts
+- [x] Detection results
+- [x] Audit logs
+- [x] Data lineage
 
-Open `frontend/.env` and make sure it contains:
+## PostgreSQL Inspection
 
-```env
-VITE_API_BASE_URL=http://localhost:8000
-```
+- [x] Docker PostgreSQL command documented
+- [x] psql commands documented
+- [x] Table inspection commands documented
+- [x] pgAdmin connection documented
+- [x] How to view conversations documented
+- [x] How to view messages documented
+- [x] How to view detections documented
+- [x] How to view lineage documented
 
-### Step 3: Start backend
+## Docker
 
-If you already have a local PostgreSQL server, make sure this database and user actually exist and match `backend/.env`.
+- [ ] Docker build works
+- [ ] Docker Compose works
+- [ ] PostgreSQL starts
+- [ ] Backend starts
+- [ ] Frontend starts
+- [ ] Containers communicate
+- [x] Environment variables work
 
-If you do not want to configure PostgreSQL manually, start the repo PostgreSQL container first from the project root:
+## Testing
 
-```bash
-docker compose up db
-```
+- [x] Login
+- [x] New chat
+- [x] Send message
+- [x] Receive AI response
+- [x] RAG retrieval
+- [x] Multi-turn context
+- [x] History persistence
+- [x] Database persistence
+- [x] ALLOW tested
+- [x] WARN tested
+- [x] BLOCK tested
+- [x] Security analysis tested
+- [x] Dashboard tested
+- [x] Profile tested
+- [x] Settings tested
 
-That container uses:
+## PostgreSQL Database Inspection
 
-```env
-POSTGRES_DB=genshield
-POSTGRES_USER=genshield
-POSTGRES_PASSWORD=change-me
-```
+Root Docker Compose service names:
 
-Then keep this value in `backend/.env`:
+- PostgreSQL service: `db`
+- Backend service: `backend`
+- Frontend service: `frontend`
 
-```env
-DATABASE_URL=postgresql+psycopg://genshield:change-me@localhost:5432/genshield
-```
-
-If your local PostgreSQL uses different credentials, change `DATABASE_URL` to match your real username, password, host, port, and database name.
-
-After PostgreSQL is available, run:
-
-```bash
-cd backend
-python -m venv .venv
-```
-
-Windows:
-
-```bash
-.venv\Scripts\activate
-```
-
-
-Install packages:
-
-```bash
-pip install -r requirements-dev.txt
-```
-
-Run backend:
-
-```bash
-python run.py
-```
-
-Backend will start at:
-
-- `http://localhost:8000`
-- Swagger docs: `http://localhost:8000/docs`
-
-### Step 4: Start frontend
-
-Open a second terminal:
+Start the database stack:
 
 ```bash
-cd frontend
-npm install
-npm run dev
+docker compose up -d db
 ```
 
-Frontend will start at:
-
-- `http://localhost:5173`
-
-### Step 5: Use the application
-
-1. Open `http://localhost:5173`
-2. Register a new account
-3. Log in
-4. Go to `AI Chatbot`
-5. Enter a prompt and generate a response
-6. Review the risk score, similarity, facts matched, and decision
-7. Open `Dashboard` to view metrics
-8. Open `Audit Logs` to verify the request was recorded
-9. Open `Protected Documents` to view the seeded synthetic documents
-
-### Step 6: Run backend tests
+Open PostgreSQL CLI:
 
 ```bash
-cd backend
-python -m pytest
+docker compose exec db psql -U <POSTGRES_USER> -d <POSTGRES_DB>
 ```
 
-### Step 7: Build frontend for production
+Use the actual values from root `.env` or `.env.example`:
 
-```bash
-cd frontend
-npm run build
+- `POSTGRES_USER`
+- `POSTGRES_DB`
+- `POSTGRES_PASSWORD`
+
+Inspect tables:
+
+```sql
+\dt
+\d chat_conversations
+\d chat_messages
+\d detection_results
 ```
 
-## Option 2: Run Entire Project With Docker
+View records:
 
-Use this option if you want the full multi-container stack.
-
-### Prerequisites
-
-- Docker Desktop installed
-- Docker Compose available
-
-### Step 1: Review root environment values
-
-Use the root `.env.example` as the base reference. If you create a root `.env`, keep values consistent with your Docker setup.
-
-Important values:
-
-```env
-POSTGRES_DB=genshield
-POSTGRES_USER=genshield
-POSTGRES_PASSWORD=change-me
-DATABASE_URL=postgresql+psycopg://genshield:change-me@db:5432/genshield
-JWT_SECRET_KEY=replace-with-a-long-random-secret
-VITE_API_BASE_URL=http://localhost:8000
+```sql
+SELECT * FROM users;
+SELECT * FROM chat_conversations ORDER BY created_at DESC;
+SELECT * FROM chat_messages ORDER BY created_at DESC;
+SELECT * FROM protected_documents;
+SELECT * FROM protected_facts;
+SELECT * FROM detection_results ORDER BY created_at DESC;
+SELECT * FROM audit_logs ORDER BY created_at DESC;
+SELECT * FROM data_lineage;
 ```
 
-### Step 2: Build containers
+Use limits for larger datasets:
 
-From the project root:
-
-```bash
-docker compose build
+```sql
+SELECT * FROM chat_messages ORDER BY created_at DESC LIMIT 20;
+SELECT * FROM detection_results ORDER BY created_at DESC LIMIT 20;
 ```
 
-### Step 3: Start containers
+## pgAdmin
 
-```bash
-docker compose up
-```
+Open pgAdmin and add a new server with:
 
-### Step 4: Open the running services
+- Host: `localhost`
+- Port: `5432`
+- Maintenance database: value of `POSTGRES_DB`
+- Username: value of `POSTGRES_USER`
+- Password: value of `POSTGRES_PASSWORD`
 
-- Frontend: `http://localhost`
-- Backend: `http://localhost:8000`
-- Swagger: `http://localhost:8000/docs`
+Navigation:
 
-### Step 5: Stop containers
+1. `Servers`
+2. `PostgreSQL`
+3. `Databases`
+4. GenShield database
+5. `Schemas`
+6. `public`
+7. `Tables`
 
-```bash
-docker compose down
-```
+Open:
 
-To also remove persistent database data:
+- `users`
+- `chat_conversations`
+- `chat_messages`
+- `protected_documents`
+- `protected_facts`
+- `detection_results`
+- `audit_logs`
+- `data_lineage`
 
-```bash
-docker compose down -v
-```
+## Remaining Blocker
 
-## Recommended Complete Verification Flow
-
-After starting the full project, test it in this order:
-
-1. Check backend health at `http://localhost:8000/health`
-2. Open frontend
-3. Register a user
-4. Log in
-5. Open Dashboard
-6. Open AI Chatbot and send a company question
-7. Confirm a security decision appears
-8. Open Audit Logs and confirm the request is recorded
-9. Open Protected Documents and confirm seeded data exists
-10. Run backend tests
-11. Run frontend production build
-
-## Common Commands
-
-Backend:
-
-```bash
-cd backend
-python -m pytest
-python run.py
-```
-
-Frontend:
-
-```bash
-cd frontend
-npm run dev
-npm run build
-```
-
-Docker:
-
-```bash
-docker compose build
-docker compose up
-docker compose down
-```
-
-## Common Problems
-
-### Backend does not start
-
-Check:
-
-- Python version
-- virtual environment activation
-- installed requirements
-- `backend/.env` values
-
-### Frontend cannot call backend
-
-Check:
-
-- backend is running on port `8000`
-- `frontend/.env` points to `http://localhost:8000`
-- CORS includes `http://localhost:5173`
-
-### Docker does not work
-
-Check:
-
-- Docker Desktop is installed
-- Docker engine is running
-- ports `80` and `8000` are free
-
-### Login fails
-
-Check:
-
-- backend is running
-- registration completed successfully
-- browser local storage is not stale from an older run
-
-## Best Way To Run It
-
-For development:
-
-- run backend directly from `backend/`
-- run frontend directly from `frontend/`
-
-For demo or deployment-style testing:
-
-- use `docker compose up`
+- Docker runtime verification is still blocked on Wednesday, August 19, 2026 because the local Docker Desktop daemon was not running, so `docker compose build` could not connect to `//./pipe/dockerDesktopLinuxEngine`.

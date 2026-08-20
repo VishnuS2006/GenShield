@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.database import get_db
-from app.core.dependencies import require_roles
+from app.core.dependencies import get_current_user
 from app.models.detection_result import DetectionResult
-from app.models.enums import Decision, UserRole
+from app.models.enums import Decision
 from app.models.protected_document import ProtectedDocument
 from app.models.user import User
 from app.schemas.dashboard import DashboardResponse, RecentDetection
@@ -16,7 +16,7 @@ router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
 @router.get("", response_model=DashboardResponse)
 async def dashboard(
-    _: User = Depends(require_roles(UserRole.SECURITY_ANALYST, UserRole.ADMINISTRATOR)),
+    _: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> DashboardResponse:
     total_requests = await db.scalar(select(func.count(DetectionResult.id))) or 0

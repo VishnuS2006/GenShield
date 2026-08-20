@@ -10,8 +10,16 @@ class ChatConversationCreate(BaseModel):
     title: str = Field(default="New conversation", min_length=1, max_length=255)
 
 
+class ChatConversationUpdate(BaseModel):
+    title: str = Field(min_length=1, max_length=255)
+
+
 class ChatPromptRequest(BaseModel):
     prompt: str = Field(min_length=1, max_length=4000)
+
+
+class ChatMessageUpdate(BaseModel):
+    content: str = Field(min_length=1, max_length=4000)
 
 
 class ChatMessageRead(BaseModel):
@@ -23,6 +31,7 @@ class ChatMessageRead(BaseModel):
     request_id: str | None = None
     decision: Decision | None = None
     risk_score: int | None = None
+    risk_level: str | None = None
     similarity_score: float | None = None
     matched_source: str | None = None
     lineage_tag: str | None = None

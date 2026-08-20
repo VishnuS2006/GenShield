@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  MessageSquare,
-  ShieldCheck,
-  ScrollText,
-  FileKey2,
-  UserCheck,
+  LayoutDashboard,
   LogOut,
+  MessageSquare,
+  Settings,
   Shield,
+  ShieldCheck,
+  UserCheck,
   X,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -22,30 +22,19 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose })
 
   if (!isOpen) return null;
 
-  const navItems = [
-    { to: '/chat', label: 'AI Chat', icon: MessageSquare },
+  const items = [
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/chat', label: 'AI Security Chatbot', icon: MessageSquare },
+    { to: '/analysis', label: 'Security Analysis', icon: ShieldCheck },
     { to: '/profile', label: 'Profile', icon: UserCheck },
-  ];
-  const securityItems =
-    user?.role === 'SECURITY_ANALYST' || user?.role === 'ADMINISTRATOR'
-      ? [
-          { to: '/security-center', label: 'Security Center', icon: ShieldCheck },
-          { to: '/audit-logs', label: 'Audit Logs', icon: ScrollText },
-          { to: '/documents', label: 'Protected Sources', icon: FileKey2 },
-        ]
-      : [];
+    { to: '/settings', label: 'Settings', icon: Settings },
+  ].filter((item) => (user?.role === 'SECURITY_ANALYST' || user?.role === 'ADMINISTRATOR' ? true : item.to !== '/analysis'));
 
   return (
     <div className="fixed inset-0 z-50 lg:hidden">
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-cyber-950/80 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-cyber-950/80 backdrop-blur-sm transition-opacity" onClick={onClose} />
 
-      {/* Sidebar Drawer */}
       <div className="fixed inset-y-0 left-0 w-72 bg-cyber-900 border-r border-cyber-800 flex flex-col z-10">
-        {/* Header */}
         <div className="h-16 px-5 flex items-center justify-between border-b border-cyber-800">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-shield-cyan/20 border border-shield-cyan/40 flex items-center justify-center text-shield-cyan">
@@ -57,17 +46,16 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose })
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-cyber-400 hover:text-white hover:bg-cyber-800"
-          >
+          <button onClick={onClose} className="p-1.5 rounded-lg text-cyber-400 hover:text-white hover:bg-cyber-800">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Links */}
         <div className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
-          {navItems.map((item) => (
+          <div className="px-3 pb-1 text-[11px] font-mono font-semibold uppercase tracking-wider text-cyber-400">
+            Workspace
+          </div>
+          {items.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -84,33 +72,8 @@ export const MobileSidebar: React.FC<MobileSidebarProps> = ({ isOpen, onClose })
               <span>{item.label}</span>
             </NavLink>
           ))}
-          {securityItems.length > 0 && (
-            <>
-              <div className="px-3 pb-1 pt-4 text-[11px] font-mono font-semibold uppercase tracking-wider text-cyber-400">
-                Security Operations
-              </div>
-              {securityItems.map((item) => (
-                <NavLink
-                  key={item.to}
-                  to={item.to}
-                  onClick={onClose}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition ${
-                      isActive
-                        ? 'bg-shield-cyan/15 border border-shield-cyan/30 text-shield-cyan font-semibold'
-                        : 'text-cyber-300 hover:text-white hover:bg-cyber-800/60'
-                    }`
-                  }
-                >
-                  <item.icon className="w-4 h-4" />
-                  <span>{item.label}</span>
-                </NavLink>
-              ))}
-            </>
-          )}
         </div>
 
-        {/* Footer */}
         <div className="p-4 border-t border-cyber-800 bg-cyber-950/40">
           <div className="flex items-center justify-between p-2.5 rounded-xl bg-cyber-850 border border-cyber-800">
             <div className="min-w-0 pr-2">

@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  MessageSquare,
-  ShieldCheck,
-  ScrollText,
-  FileKey2,
-  UserCheck,
+  LayoutDashboard,
   LogOut,
+  MessageSquare,
+  Settings,
   Shield,
+  ShieldCheck,
+  UserCheck,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -18,48 +18,16 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = () => {
   const { user, logout } = useAuth();
 
-  const navItems = [
-    {
-      to: '/chat',
-      label: 'AI Chat',
-      icon: MessageSquare,
-      badge: undefined,
-    },
-    {
-      to: '/profile',
-      label: 'Profile',
-      icon: UserCheck,
-      badge: undefined,
-    },
-  ];
-
-  const securityItems =
-    user?.role === 'SECURITY_ANALYST' || user?.role === 'ADMINISTRATOR'
-      ? [
-          {
-            to: '/security-center',
-            label: 'Security Center',
-            icon: ShieldCheck,
-            badge: undefined,
-          },
-          {
-            to: '/audit-logs',
-            label: 'Audit Logs',
-            icon: ScrollText,
-            badge: undefined,
-          },
-          {
-            to: '/documents',
-            label: 'Protected Sources',
-            icon: FileKey2,
-            badge: 'Vault',
-          },
-        ]
-      : [];
+  const items = [
+    { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { to: '/chat', label: 'AI Security Chatbot', icon: MessageSquare },
+    { to: '/analysis', label: 'Security Analysis', icon: ShieldCheck },
+    { to: '/profile', label: 'Profile', icon: UserCheck },
+    { to: '/settings', label: 'Settings', icon: Settings },
+  ].filter((item) => (user?.role === 'SECURITY_ANALYST' || user?.role === 'ADMINISTRATOR' ? true : item.to !== '/analysis'));
 
   return (
     <aside className="w-64 bg-cyber-900 border-r border-cyber-800 flex flex-col h-screen fixed top-0 left-0 z-30 select-none">
-      {/* Brand Header */}
       <div className="h-16 px-5 flex items-center gap-3 border-b border-cyber-800">
         <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-shield-cyan/20 to-shield-indigo/20 border border-shield-cyan/40 flex items-center justify-center text-shield-cyan shadow-glow-cyan">
           <Shield className="w-5 h-5" />
@@ -75,69 +43,29 @@ export const Sidebar: React.FC<SidebarProps> = () => {
         </div>
       </div>
 
-      {/* Navigation List */}
       <div className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         <div className="px-3 pb-2 text-[11px] font-mono font-semibold uppercase tracking-wider text-cyber-500">
-          Assistant
+          Workspace
         </div>
 
-        {navItems.map((item) => (
+        {items.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group ${
+              `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group ${
                 isActive
                   ? 'bg-shield-cyan/10 border border-shield-cyan/30 text-shield-cyan font-semibold'
                   : 'text-cyber-300 hover:text-white hover:bg-cyber-850 border border-transparent'
               }`
             }
           >
-            <div className="flex items-center gap-3">
-              <item.icon className="w-4 h-4 transition-transform group-hover:scale-105" />
-              <span>{item.label}</span>
-            </div>
-            {item.badge && (
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-800 text-cyber-300 border border-cyber-700">
-                {item.badge}
-              </span>
-            )}
+            <item.icon className="w-4 h-4 transition-transform group-hover:scale-105" />
+            <span>{item.label}</span>
           </NavLink>
         ))}
-
-        {securityItems.length > 0 && (
-          <>
-            <div className="px-3 pb-2 pt-5 text-[11px] font-mono font-semibold uppercase tracking-wider text-cyber-500">
-              Security Operations
-            </div>
-            {securityItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all group ${
-                    isActive
-                      ? 'bg-shield-cyan/10 border border-shield-cyan/30 text-shield-cyan font-semibold'
-                      : 'text-cyber-300 hover:text-white hover:bg-cyber-850 border border-transparent'
-                  }`
-                }
-              >
-                <div className="flex items-center gap-3">
-                  <item.icon className="w-4 h-4 transition-transform group-hover:scale-105" />
-                  <span>{item.label}</span>
-                </div>
-                {item.badge && (
-                  <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyber-800 text-cyber-300 border border-cyber-700">
-                    {item.badge}
-                  </span>
-                )}
-              </NavLink>
-            ))}
-          </>
-        )}
       </div>
 
-      {/* User Info & Logout Footer */}
       <div className="p-3.5 border-t border-cyber-800 bg-cyber-950/40">
         <div className="flex items-center justify-between p-2 rounded-xl bg-cyber-850 border border-cyber-750">
           <div className="flex items-center gap-2.5 min-w-0">
