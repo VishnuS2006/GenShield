@@ -1,191 +1,97 @@
 # GenShield
 
-GenShield is a full-stack AI security platform that detects whether LLM-generated responses leak protected synthetic company information. The backend makes the security decision deterministically using semantic similarity, factual overlap, sensitivity, risk scoring, and lineage tracing.
+### Semantic protection for AI-generated responses
 
-## Main Application Areas
+GenShield is a full-stack security platform that checks whether an LLM response reveals protected company information. It turns sensitive knowledge into an enforceable decision before the response reaches the user.
 
-- Dashboard
-- AI Security Chatbot
-- Security Analysis
-- Profile
-- Settings
+## Objective
 
-## Core Features
+Prevent semantic data exfiltration from generative AI systems while keeping every decision explainable, auditable, and traceable to its source.
 
-- FastAPI backend with PostgreSQL persistence
-- React + TypeScript frontend
-- JWT authentication with Argon2 password hashing
-- Deterministic `ALLOW` / `WARN` / `BLOCK` enforcement
-- Semantic similarity with `all-MiniLM-L6-v2`
-- Factual overlap detection against protected facts
-- Audit logging and data lineage tracking
+## What Makes It Novel
 
-## Working API Endpoints
+GenShield does not rely on keyword blocking alone. It independently combines four signals:
 
-- `GET /health`
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `GET /api/auth/me`
-- `GET /api/auth/profile-summary`
-- `GET /api/auth/settings`
-- `GET /api/dashboard`
-- `GET /api/history`
-- `GET /api/chat/conversations`
-- `POST /api/chat/conversations`
-- `GET /api/chat/conversations/{conversation_id}`
-- `POST /api/chat/conversations/{conversation_id}/messages`
-- `POST /api/generate`
-- `POST /api/detect`
-- `GET /api/protected-documents`
+| Signal | Purpose |
+| --- | --- |
+| Semantic similarity | Detects meaning-level matches, including paraphrases |
+| Factual overlap | Finds protected names, numbers, dates, and entities |
+| Risk scoring | Weighs sensitivity and evidence into a consistent result |
+| Lineage tracing | Shows which protected document or fact supports the decision |
 
-## Local Development
+The policy engine returns a deterministic `ALLOW`, `WARN`, or `BLOCK` result. Detection results, audit events, and provenance are stored for later review in the security dashboard.
 
-### Backend
+## How It Works
+
+```text
+Protected documents and facts
+            |
+            v
+      User prompt -> LLM response
+                           |
+                           v
+       Similarity + factual overlap + sensitivity
+                           |
+                           v
+              Risk and policy decision
+                 /        |        \
+             ALLOW       WARN      BLOCK
+                           |
+                           v
+              Audit log and data lineage
+```
+
+## Run With Docker
+
+Requirements: Docker Desktop with Compose enabled.
 
 ```bash
+copy .env.example .env
+docker compose up --build
+```
+
+Open the application at [http://localhost](http://localhost). The API is available at [http://localhost:8000/docs](http://localhost:8000/docs), and its health check is [http://localhost:8000/health](http://localhost:8000/health).
+
+Stop the services with:
+
+```bash
+docker compose down
+```
+
+## Run Locally
+
+Start the backend first. PostgreSQL must be available, and the backend environment should be configured from `.env.example`.
+
+```powershell
 cd backend
 python -m venv .venv
-.venv\Scripts\activate
+.venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
 python run.py
 ```
 
-Backend URLs:
+In a second terminal, start the frontend:
 
-- API: `http://localhost:8000`
-- Swagger: `http://localhost:8000/docs`
-- Health: `http://localhost:8000/health`
-
-### Frontend
-
-```bash
+```powershell
 cd frontend
 npm install
 npm run dev
 ```
 
-Frontend URL:
+Then open [http://localhost:5173](http://localhost:5173). Set `VITE_API_BASE_URL=http://localhost:8000` in `frontend/.env` when needed.
 
-- App: `http://localhost:5173`
+## Validate
 
-## Docker
-
-From the repository root:
-
-```bash
-docker compose build
-docker compose up -d
-docker compose ps
-docker compose logs -f
-docker compose down
-```
-
-Status on August 19, 2026:
-
-- `docker compose config` succeeded.
-- `docker compose build` could not complete because the local Docker Desktop daemon was not running:
-  `failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine`
-
-## Testing
-
-Backend:
-
-```bash
+```powershell
 cd backend
 python -m pytest
-```
 
-Frontend:
-
-```bash
-cd frontend
+cd ..\frontend
 npm run build
 ```
 
-Verified on August 19, 2026:
+## Stack
 
-- Backend tests: `29 passed`
-- Frontend production build: passed
+FastAPI, PostgreSQL, SQLAlchemy, JWT and Argon2 on the backend; React, TypeScript, Vite, Tailwind CSS, Recharts, and Lucide React on the frontend.
 
-## Viewing PostgreSQL Records
-
-Use actual local credentials from your root `.env` or `.env.example`. Do not hardcode secrets into the repo.
-
-### Method 1 - PostgreSQL CLI through Docker
-
-If PostgreSQL is running via Docker Compose:
-
-```bash
-docker compose exec db psql -U <POSTGRES_USER> -d <POSTGRES_DB>
-```
-
-Useful commands:
-
-```sql
-\dt
-SELECT * FROM users;
-SELECT * FROM protected_documents;
-SELECT * FROM protected_facts;
-SELECT * FROM detection_results;
-SELECT * FROM audit_logs;
-SELECT * FROM data_lineage;
-SELECT * FROM detection_results LIMIT 20;
-```
-
-### Method 2 - pgAdmin / Database GUI
-
-Use values from your local `.env` or `.env.example`:
-
-- Host: `localhost`
-- Port: `5432`
-- Database: value of `POSTGRES_DB`
-- Username: value of `POSTGRES_USER`
-- Password: value of `POSTGRES_PASSWORD`
-
-In pgAdmin:
-
-1. Open `Servers`
-2. Open your PostgreSQL server
-3. Open `Databases`
-4. Open the GenShield database
-5. Open `Schemas`
-6. Open `public`
-7. Open `Tables`
-
-Then inspect:
-
-- `users`
-- `protected_documents`
-- `protected_facts`
-- `detection_results`
-- `audit_logs`
-- `data_lineage`
-
-## Environment Variables
-
-Use `.env.example` as the template. Never commit real secrets.
-
-Important values:
-
-```env
-POSTGRES_DB=genshield
-POSTGRES_USER=genshield
-POSTGRES_PASSWORD=change-me
-DATABASE_URL=postgresql+psycopg://genshield:change-me@db:5432/genshield
-JWT_SECRET_KEY=replace-with-a-long-random-secret
-LLM_PROVIDER=mock
-OPENAI_API_KEY=
-OPENAI_MODEL=gpt-4o-mini
-EMBEDDING_MODEL=all-MiniLM-L6-v2
-SIMILARITY_WARN_THRESHOLD=0.60
-SIMILARITY_BLOCK_THRESHOLD=0.85
-RISK_WARN_THRESHOLD=60
-RISK_BLOCK_THRESHOLD=90
-VITE_API_BASE_URL=http://localhost:8000
-```
-
-## Notes
-
-- The repo ignores `.env`, so local secrets are not tracked by Git.
-- The frontend bundle currently emits a large-chunk warning during `vite build`; the build still succeeds.
-- Browser-level end-to-end validation was not run in this terminal session.
+Never commit real credentials. Use `.env.example` as the configuration template.
