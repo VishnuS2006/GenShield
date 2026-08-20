@@ -1,7 +1,15 @@
 from logging.config import fileConfig
+from pathlib import Path
+import sys
 
 from alembic import context
 from sqlalchemy import engine_from_config, pool
+
+# Ensure `backend/app` is importable when Alembic is launched via the
+# virtualenv entrypoint rather than `python -m`.
+BACKEND_DIR = Path(__file__).resolve().parents[1]
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 from app.core.config import get_settings
 from app.core.database import Base
