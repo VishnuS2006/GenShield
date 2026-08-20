@@ -2,64 +2,55 @@
 
 ### Semantic protection for AI-generated responses
 
-GenShield is a full-stack security platform that checks whether an LLM response reveals protected company information. It turns sensitive knowledge into an enforceable decision before the response reaches the user.
+GenShield is a full-stack AI security platform that detects and prevents the exposure of protected company information in LLM-generated responses. It provides a transparent risk decision for every response and preserves the evidence needed for security review.
 
-## Objective
+## Overview
 
-Prevent semantic data exfiltration from generative AI systems while keeping every decision explainable, auditable, and traceable to its source.
+GenShield is designed to protect organizations using generative AI. Instead of relying only on exact keyword matches, it evaluates the meaning and factual content of a response against protected company knowledge.
 
-## What Makes It Novel
+### Key Capabilities
 
-GenShield does not rely on keyword blocking alone. It independently combines four signals:
-
-| Signal | Purpose |
-| --- | --- |
-| Semantic similarity | Detects meaning-level matches, including paraphrases |
-| Factual overlap | Finds protected names, numbers, dates, and entities |
-| Risk scoring | Weighs sensitivity and evidence into a consistent result |
-| Lineage tracing | Shows which protected document or fact supports the decision |
-
-The policy engine returns a deterministic `ALLOW`, `WARN`, or `BLOCK` result. Detection results, audit events, and provenance are stored for later review in the security dashboard.
+- Semantic similarity analysis for paraphrased or meaning-level leaks
+- Factual overlap detection for names, dates, numbers, and business entities
+- Explainable risk scoring with `ALLOW`, `WARN`, and `BLOCK` outcomes
+- Source lineage showing which protected document or fact triggered a decision
+- Audit history for monitoring and reviewing detection activity
 
 ## How It Works
 
+1. Protected documents and facts are stored in the system.
+2. A user submits a prompt and receives an AI-generated response.
+3. GenShield compares the response with the protected knowledge base.
+4. Similarity, factual overlap, sensitivity, and risk signals are evaluated.
+5. The policy engine returns `ALLOW`, `WARN`, or `BLOCK`.
+6. The decision, supporting evidence, and source lineage are recorded.
+
 ```text
-Protected documents and facts
-            |
-            v
-      User prompt -> LLM response
-                           |
-                           v
-       Similarity + factual overlap + sensitivity
-                           |
-                           v
-              Risk and policy decision
-                 /        |        \
-             ALLOW       WARN      BLOCK
-                           |
-                           v
-              Audit log and data lineage
+User prompt -> LLM response -> Security analysis -> Risk decision
+				      |               |
+			 Protected knowledge       ALLOW / WARN / BLOCK
+				      |
+			      Audit and lineage
 ```
 
-## Run With Docker
+## Technology
 
-Requirements: Docker Desktop with Compose enabled.
+- **Frontend:** React, TypeScript, Vite, and Tailwind CSS
+- **Backend:** FastAPI, Python, SQLAlchemy, and PostgreSQL
+- **Security:** JWT authentication and Argon2 password hashing
+- **Analysis:** Sentence-transformer embeddings and deterministic risk rules
 
-```bash
-docker compose up --build
-```
+## Running the Project
 
-Open the application at [http://localhost](http://localhost). The API is available at [http://localhost:8000/docs](http://localhost:8000/docs), and its health check is [http://localhost:8000/health](http://localhost:8000/health).
+### Prerequisites
 
-Stop the services with:
+- Python 3.11 or later
+- Node.js 18 or later
+- PostgreSQL running locally or through the repository's Compose configuration
 
-```bash
-docker compose down
-```
+### 1. Start the Backend
 
-## Run Locally
-
-Start the backend first. PostgreSQL must be available, and the backend environment should be configured from `backend/.env.example` into `backend/.env`.
+Configure the backend environment using `backend/.env.example`, then run:
 
 ```powershell
 cd backend
@@ -69,7 +60,11 @@ pip install -r requirements-dev.txt
 python run.py
 ```
 
-In a second terminal, start the frontend:
+The API runs at `http://localhost:8000`. API documentation is available at `http://localhost:8000/docs`.
+
+### 2. Start the Frontend
+
+Open a second terminal and run:
 
 ```powershell
 cd frontend
@@ -77,20 +72,8 @@ npm install
 npm run dev
 ```
 
-Then open [http://localhost:5173](http://localhost:5173). Set `VITE_API_BASE_URL=http://localhost:8000` in `frontend/.env` when needed.
+The web application runs at `http://localhost:5173`. Set `VITE_API_BASE_URL=http://localhost:8000` in `frontend/.env` if the API URL is not already configured.
 
-## Validate
+## Project Goal
 
-```powershell
-cd backend
-python -m pytest
-
-cd ..\frontend
-npm run build
-```
-
-## Stack
-
-FastAPI, PostgreSQL, SQLAlchemy, JWT and Argon2 on the backend; React, TypeScript, Vite, Tailwind CSS, Recharts, and Lucide React on the frontend.
-
-Never commit real credentials. Use `backend/.env.example` and `frontend/.env.example` as the configuration templates.
+GenShield makes AI data protection practical by combining automated detection, explainable decisions, and traceable security records in one platform.

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { PublicRoute } from './routes/PublicRoute';
@@ -16,9 +17,12 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import { ThemeToggle } from './components/common/ThemeToggle';
 
 export const App: React.FC = () => {
+  const location = useLocation();
+  const showFloatingThemeToggle = location.pathname === '/login' || location.pathname === '/register';
+
   return (
     <>
-      <ThemeToggle />
+      {showFloatingThemeToggle && <ThemeToggle />}
       <Routes>
         {/* Public Routes */}
         <Route
