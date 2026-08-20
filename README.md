@@ -46,7 +46,6 @@ Protected documents and facts
 Requirements: Docker Desktop with Compose enabled.
 
 ```bash
-copy .env.example .env
 docker compose up --build
 ```
 
@@ -60,7 +59,7 @@ docker compose down
 
 ## Run Locally
 
-Start the backend first. PostgreSQL must be available, and the backend environment should be configured from `.env.example`.
+Start the backend first. PostgreSQL must be available, and the backend environment should be configured from `backend/.env.example` into `backend/.env`.
 
 ```powershell
 cd backend
@@ -94,4 +93,4 @@ npm run build
 
 FastAPI, PostgreSQL, SQLAlchemy, JWT and Argon2 on the backend; React, TypeScript, Vite, Tailwind CSS, Recharts, and Lucide React on the frontend.
 
-Never commit real credentials. Use `.env.example` as the configuration template.
+Never commit real credentials. Use `backend/.env.example` and `frontend/.env.example` as the configuration templates.

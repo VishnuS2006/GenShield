@@ -1,13 +1,15 @@
 from functools import lru_cache
-from typing import List
+from pathlib import Path
+from typing import ClassVar, List
 
 from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    backend_root: ClassVar[Path] = Path(__file__).resolve().parents[2]
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=str(backend_root / ".env"),
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
@@ -27,7 +29,10 @@ class Settings(BaseSettings):
     similarity_block_threshold: float = 0.78
     risk_warn_threshold: int = 45
     risk_block_threshold: int = 85
-    cors_origins_raw: str = Field(default="http://localhost:5173", alias="CORS_ORIGINS")
+    cors_origins_raw: str = Field(
+        default="http://localhost:5173,http://localhost:5174",
+        alias="CORS_ORIGINS",
+    )
     log_generated_response: bool = False
 
     @computed_field  # type: ignore[misc]

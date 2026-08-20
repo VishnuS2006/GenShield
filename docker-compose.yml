@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-genshield}
-      POSTGRES_USER: ${POSTGRES_USER:-genshield}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      POSTGRES_DB: genshield
+      POSTGRES_USER: genshield
+      POSTGRES_PASSWORD: change-me
     ports:
       - "5432:5432"
     healthcheck:
@@ -19,24 +19,13 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
     environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://genshield:change-me@db:5432/genshield}
       POSTGRES_DB: ${POSTGRES_DB:-genshield}
       POSTGRES_USER: ${POSTGRES_USER:-genshield}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
-      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-genshield}:${POSTGRES_PASSWORD:-change-me}@db:5432/${POSTGRES_DB:-genshield}
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-this-development-secret}
-      JWT_ALGORITHM: ${JWT_ALGORITHM:-HS256}
-      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES:-60}
-      LLM_PROVIDER: ${LLM_PROVIDER:-mock}
-      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
-      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
-      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-all-MiniLM-L6-v2}
-      SIMILARITY_WARN_THRESHOLD: ${SIMILARITY_WARN_THRESHOLD:-0.45}
-      SIMILARITY_BLOCK_THRESHOLD: ${SIMILARITY_BLOCK_THRESHOLD:-0.78}
-      RISK_WARN_THRESHOLD: ${RISK_WARN_THRESHOLD:-45}
-      RISK_BLOCK_THRESHOLD: ${RISK_BLOCK_THRESHOLD:-85}
-      ENVIRONMENT: ${ENVIRONMENT:-development}
-      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost,http://localhost:5173,http://localhost:3000}
     depends_on:
       db:
         condition: service_healthy
@@ -52,6 +41,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000}
     depends_on:
       backend:
         condition: service_healthy
